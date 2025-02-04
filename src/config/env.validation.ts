@@ -1,5 +1,5 @@
 // src/config/env.validation.ts
-import { plainToClass } from 'class-transformer';
+import { plainToClass, Type } from 'class-transformer';
 import { IsString, IsNumber, IsEnum, validateSync } from 'class-validator';
 
 enum Environment {
@@ -12,6 +12,7 @@ class EnvironmentVariables {
   @IsEnum(Environment)
   NODE_ENV: Environment;
 
+  @Type(() => Number)
   @IsNumber()
   PORT: number;
 
@@ -21,6 +22,7 @@ class EnvironmentVariables {
   @IsString()
   DB_HOST: string;
 
+  @Type(() => Number)
   @IsNumber()
   DB_PORT: number;
 
