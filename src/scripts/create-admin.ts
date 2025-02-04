@@ -8,7 +8,7 @@ async function bootstrap() {
   const adminService = app.get(AdminService);
 
   try {
-    await adminService.createAdmin('Monte$ano1234', '13579');
+    await adminService.createAdmin('Monte$ano1234', 'ArleneP@ssw0rd805');
     console.log('Admin created successfully');
   } catch (error) {
     console.error('Failed to create admin:', error);
