@@ -23,10 +23,10 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
     idleTimeoutMillis: 30000,
     statement_timeout: 10000,
   },
-  ssl: configService.get('NODE_ENV') === 'production' ? {
-    rejectUnauthorized: true,
-    ca: readFileSync(join(process.cwd(), 'ssl/ca-certificate.crt')),
-  } : false,
+  ssl: configService.get('NODE_ENV') === 'production'
+  ? { rejectUnauthorized: true }
+  : false,
+
   logging: configService.get('NODE_ENV') !== 'production',
   logger: 'advanced-console',
   autoLoadEntities: true,
