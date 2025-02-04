@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { AppModule } from './app.module';
-import compression from 'compression';
+import * as compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
