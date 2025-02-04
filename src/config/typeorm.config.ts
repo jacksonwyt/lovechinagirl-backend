@@ -24,7 +24,7 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
     statement_timeout: 10000,
   },
   ssl: configService.get('NODE_ENV') === 'production'
-  ? { rejectUnauthorized: true }
+  ? { rejectUnauthorized: false }
   : false,
 
   logging: configService.get('NODE_ENV') !== 'production',
