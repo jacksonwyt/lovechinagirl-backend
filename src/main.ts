@@ -12,6 +12,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const apiUrl = configService.get('API_URL');
 
+  const expressApp = app.getHttpAdapter().getInstance();
+expressApp.set('trust proxy', 1);
+
   app.use(compression());
 
   app.use(
