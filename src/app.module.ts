@@ -3,7 +3,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER } from '@nestjs/core';
 import { typeOrmConfig } from './config/typeorm.config';
 import { ProjectsModule } from './projects/projects.module';
