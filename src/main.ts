@@ -29,7 +29,7 @@ expressApp.set('trust proxy', 1);
           'font-src': ["'self'", "https://fonts.gstatic.com"],
           'form-action': "'self'",
           'frame-ancestors': "'self'",
-          'img-src': ["'self'", "data:", "blob:", apiUrl].filter(Boolean),
+          'img-src': ["'self'", "data:", "blob:", "*.amazonaws.com"],
           'object-src': "'none'",
           'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
           'script-src-attr': "'none'",
@@ -45,13 +45,15 @@ expressApp.set('trust proxy', 1);
   app.use(rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
+    message: 'Too many requests from this IP'
   }));
 
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://www.lovechinagirldesign.com',
+    origin: [
+      'https://lovechinagirldesign.com',
+      'http://localhost:3000'
+    ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   app.useGlobalPipes(new ValidationPipe({
@@ -60,7 +62,9 @@ expressApp.set('trust proxy', 1);
     forbidNonWhitelisted: true,
   }));
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: ['/health'], // Health check available at root
+  });
 
   if (configService.get('NODE_ENV') === 'production') {
     app.use((req, res, next) => {

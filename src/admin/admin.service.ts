@@ -28,26 +28,36 @@ export class AdminService {
 
     return admin;
   }
-  
 
   async login(admin: Admin) {
-    const payload = { username: admin.username, sub: admin.id };
-    const token = this.jwtService.sign(payload);
-    
+    const payload = { 
+      username: admin.username, 
+      sub: admin.id,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour expiration
+    };
     return {
-      access_token: token,
-      expires_in: 86400 // 24 hours
+      access_token: this.jwtService.sign(payload),
+      expires_in: 3600,
+      user: { id: admin.id, username: admin.username }
     };
   }
 
   async createAdmin(username: string, password: string) {
+    const existingAdmin = await this.adminRepository.findOne({ 
+      where: { username } 
+    });
+    if (existingAdmin) {
+      throw new BadRequestException('Username already exists');
+    }
+
     if (!PASSWORD_REGEX.test(password)) {
       throw new BadRequestException(
         'Password must be at least 12 characters long and contain uppercase, lowercase, number, and special character'
       );
     }
 
-    const salt = await bcrypt.genSalt(12); // Increased from default 10
+    const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
     
     const admin = this.adminRepository.create({

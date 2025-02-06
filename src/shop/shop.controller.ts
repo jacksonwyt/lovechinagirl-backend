@@ -14,18 +14,18 @@ import {
   } from '@nestjs/common';
   import { JwtAuthGuard } from '../admin/jwt-auth.guard';
   import { FilesInterceptor } from '@nestjs/platform-express';
-  import { storage, multerConfig } from '../common/middleware/upload.middleware';
+  import { multerConfig } from '../common/middleware/upload.middleware';
   import { ShopService } from './shop.service';
   import { ShopItem } from './shop-item.entity';
   
   @Controller('shop')
-  export class ShopController {
-    constructor(private readonly shopService: ShopService) {}
-  
-    @Get()
-    findAll() {
-      return this.shopService.findAll();
-    }
+export class ShopController {
+  constructor(private readonly shopService: ShopService) {}
+
+  @Get()
+  findAll() {
+    return this.shopService.findAll();
+  }
   
     @Get(':id')
     findOne(@Param('id', ParseUUIDPipe) id: string) {
@@ -34,7 +34,6 @@ import {
   
     @UseGuards(JwtAuthGuard)
     @Post()
-@UseGuards(JwtAuthGuard)
 @UseInterceptors(FilesInterceptor('images', 10, multerConfig))
     create(
       @Body() item: Partial<ShopItem>,
@@ -45,7 +44,6 @@ import {
   
     @UseGuards(JwtAuthGuard)
     @Put(':id')
-@UseGuards(JwtAuthGuard)
 @UseInterceptors(FilesInterceptor('images', 10, multerConfig))
     update(
       @Param('id', ParseUUIDPipe) id: string,

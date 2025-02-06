@@ -18,12 +18,15 @@ import { AdminController } from './admin.controller'
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: '1d' },
+        signOptions: { 
+          expiresIn: '24h',
+          algorithm: 'HS256'
+        },
       }),
       inject: [ConfigService],
     }),
   ],
-  controllers: [AdminController], // Add AdminController here
+  controllers: [AdminController],
   providers: [AdminService, JwtStrategy],
   exports: [AdminService, JwtStrategy, PassportModule],
 })

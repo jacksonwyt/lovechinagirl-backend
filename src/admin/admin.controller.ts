@@ -1,10 +1,11 @@
 // admin.controller.ts
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
-import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
+import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AdminService } from './admin.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
+
 
 @Controller('admin')
-@UseGuards(ThrottlerGuard)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
@@ -16,5 +17,11 @@ export class AdminController {
       credentials.password
     );
     return this.adminService.login(admin);
+  }
+
+  @Get('verify')
+  @UseGuards(JwtAuthGuard)
+  async verifyToken() {
+    return { valid: true };
   }
 }
