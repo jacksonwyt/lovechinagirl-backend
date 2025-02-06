@@ -5,8 +5,7 @@ import { Project } from '../projects/project.entity';
 import { Admin } from '../admin/admin.entity';
 import { Contact } from '../contact/contact.entity';
 import { ShopItem } from '../shop/shop-item.entity';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+
 
 export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOptions => ({
   type: 'postgres',
