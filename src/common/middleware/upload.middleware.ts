@@ -41,20 +41,26 @@ const validateFileContent = async (file: Express.Multer.File): Promise<boolean> 
   }
 
   const signature = file.buffer.slice(0, 8);
-  const expectedSignatures = FILE_SIGNATURES[file.mimetype];
-
-  if (!expectedSignatures) {
-    logger.warn(`No signature defined for mimetype: ${file.mimetype}`);
-    return false;
+  
+  // Check against all known signatures regardless of reported mimetype
+  for (const [mimeType, signatures] of Object.entries(FILE_SIGNATURES)) {
+    if (Array.isArray(signatures)) {
+      if (signatures.some(sig => signature.slice(0, sig.length).equals(sig))) {
+        // Update mimetype if it doesn't match
+        if (file.mimetype !== mimeType) {
+          file.mimetype = mimeType;
+        }
+        return true;
+      }
+    } else if (signature.slice(0, signatures.length).equals(signatures)) {
+      if (file.mimetype !== mimeType) {
+        file.mimetype = mimeType;
+      }
+      return true;
+    }
   }
 
-  if (Array.isArray(expectedSignatures)) {
-    return expectedSignatures.some(sig => 
-      signature.slice(0, sig.length).equals(sig)
-    );
-  }
-
-  return signature.slice(0, expectedSignatures.length).equals(expectedSignatures);
+  return false;
 };
 
 // Sanitize filename
