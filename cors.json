@@ -5,6 +5,7 @@
             "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
             "AllowedOrigins": [
                 "https://lovechinagirldesign.com",
+                "https://www.lovechinagirldesign.com",
                 "https://api.lovechinagirldesign.com",
                 "http://localhost:3000",
                 "http://localhost:3001"
