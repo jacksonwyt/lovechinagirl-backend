@@ -1,6 +1,6 @@
 //src/common/middleware/upload.middleware.ts
 
-import { diskStorage } from 'multer';
+import { diskStorage, memoryStorage } from 'multer';
 import { extname } from 'path';
 import { Request } from 'express';
 import { HttpException, HttpStatus } from '@nestjs/common';
@@ -62,7 +62,7 @@ const s3Client = process.env.NODE_ENV === 'production'
 
 // If not in production, use disk storage for local file saving
 export const storage = process.env.NODE_ENV === 'production'
-  ? undefined // memory storage (default) for S3
+  ? memoryStorage() // memory storage (default) for S3
   : diskStorage({
       destination: './uploads',
       filename: (req: Request, file: Express.Multer.File, cb: Function) => {
