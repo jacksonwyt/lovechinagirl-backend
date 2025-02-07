@@ -58,8 +58,15 @@ expressApp.set('trust proxy', 1);
     ],
     credentials: true,
     methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['*'],
-    exposedHeaders: []
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'Access-Control-Allow-Origin'
+    ],
+    exposedHeaders: ['Access-Control-Allow-Origin']
   });
 
   app.useGlobalPipes(new ValidationPipe({
