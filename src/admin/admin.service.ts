@@ -32,13 +32,11 @@ export class AdminService {
   async login(admin: Admin) {
     const payload = { 
       username: admin.username, 
-      sub: admin.id,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour expiration
+      sub: admin.id
     };
     return {
       access_token: this.jwtService.sign(payload),
-      expires_in: 3600,
+      expires_in: 86400, // 24 hours in seconds
       user: { id: admin.id, username: admin.username }
     };
   }
