@@ -51,9 +51,15 @@ expressApp.set('trust proxy', 1);
   app.enableCors({
     origin: [
       'https://lovechinagirldesign.com',
-      'http://localhost:3000'
+      'https://www.lovechinagirldesign.com',
+      'https://api.lovechinagirldesign.com',
+      'http://localhost:3000',
+      'http://localhost:3001'
     ],
     credentials: true,
+    methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['*'],
+    exposedHeaders: []
   });
 
   app.useGlobalPipes(new ValidationPipe({
