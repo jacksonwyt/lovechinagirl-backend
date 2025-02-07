@@ -11,13 +11,12 @@ import { Buffer } from 'buffer';
 import { lookup } from 'mime-types';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const FILE_SIGNATURES = {
   'image/jpeg': Buffer.from([0xff, 0xd8, 0xff]),
   'image/png': Buffer.from([0x89, 0x50, 0x4e, 0x47]),
-  'image/webp': Buffer.from([0x52, 0x49, 0x46, 0x46]),
-  'image/jpg':  Buffer.from([0xff, 0xd8, 0xff])
+  'image/webp': Buffer.from([0x52, 0x49, 0x46, 0x46])
 };
 
 const validateFileContent = async (file: Express.Multer.File): Promise<boolean> => {
@@ -75,6 +74,7 @@ export const storage = process.env.NODE_ENV === 'production'
     });
 
 export const fileFilter = async (req: Request, file: Express.Multer.File, cb: Function) => {
+  console.log('Incoming file:', file.mimetype, file.originalname, file.size);
   try {
     // Check if the file’s mimetype is allowed
     if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {
