@@ -7,6 +7,10 @@ import rateLimit from 'express-rate-limit';
 import { AppModule } from './app.module';
 import * as compression from 'compression';
 
+console.log('=== Debug: Starting Nest App ===');
+console.log('Current NODE_ENV:', process.env.NODE_ENV);
+
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);

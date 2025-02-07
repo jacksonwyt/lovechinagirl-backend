@@ -22,15 +22,26 @@ export class ProjectsController {
     return this.projectsService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post()
-  @UseInterceptors(FilesInterceptor('images', 10, multerConfig))
-  create(@Body() project: CreateProjectDto, @UploadedFiles() files: Express.Multer.File[]): Promise<Project> {
-    return this.projectsService.create(project, files);
-  }
-
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(FilesInterceptor('images', 10, multerConfig))
+create(
+  @Body() project: CreateProjectDto,
+  @UploadedFiles() files: Express.Multer.File[],
+): Promise<Project> {
+  console.log('=== Debug: ProjectsController create ===');
+  console.log('Number of files received:', files?.length);
+  files?.forEach((f, idx) => {
+    console.log(`File #${idx} =>`, {
+      mimetype: f.mimetype,
+      size: f.size,
+      bufferLength: f.buffer?.length ?? 'no buffer',
+    });
+  });
+  return this.projectsService.create(project, files);
+}
+    @Put(':id')
   @UseGuards(JwtAuthGuard)
-  @Put(':id')
   @UseInterceptors(FilesInterceptor('images', 10, multerConfig))
   update(
     @Param('id', ParseUUIDPipe) id: string, 
@@ -40,8 +51,9 @@ export class ProjectsController {
     return this.projectsService.update(id, project, files);
   }
 
-  @UseGuards(JwtAuthGuard)
+  
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.projectsService.remove(id);
   }

@@ -10,6 +10,9 @@ import { AwsCredentialIdentity } from "@aws-sdk/types";
 import { Buffer } from 'buffer';
 import { lookup } from 'mime-types';
 
+console.log('=== Debug: Inside upload.middleware ===');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 

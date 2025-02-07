@@ -32,8 +32,9 @@ export class ShopController {
       return this.shopService.findOne(id);
     }
   
-    @UseGuards(JwtAuthGuard)
+    
     @Post()
+    @UseGuards(JwtAuthGuard)
 @UseInterceptors(FilesInterceptor('images', 10, multerConfig))
     create(
       @Body() item: Partial<ShopItem>,
@@ -42,8 +43,9 @@ export class ShopController {
       return this.shopService.create(item, files);
     }
   
-    @UseGuards(JwtAuthGuard)
+    
     @Put(':id')
+    @UseGuards(JwtAuthGuard)
 @UseInterceptors(FilesInterceptor('images', 10, multerConfig))
     update(
       @Param('id', ParseUUIDPipe) id: string,
@@ -53,8 +55,9 @@ export class ShopController {
       return this.shopService.update(id, item, files);
     }
   
-    @UseGuards(JwtAuthGuard)
+    
     @Delete(':id')
+    @UseGuards(JwtAuthGuard)
     remove(@Param('id', ParseUUIDPipe) id: string) {
       return this.shopService.remove(id);
     }
