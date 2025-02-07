@@ -17,6 +17,7 @@ const FILE_SIGNATURES = {
   'image/jpeg': Buffer.from([0xff, 0xd8, 0xff]),
   'image/png': Buffer.from([0x89, 0x50, 0x4e, 0x47]),
   'image/webp': Buffer.from([0x52, 0x49, 0x46, 0x46]),
+  'image/jpg':  Buffer.from([0xff, 0xd8, 0xff])
 };
 
 const validateFileContent = async (file: Express.Multer.File): Promise<boolean> => {
