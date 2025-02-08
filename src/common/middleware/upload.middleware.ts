@@ -11,44 +11,28 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024;
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
 
-const FILE_SIGNATURES = {
-  'image/jpeg': [
-    Buffer.from([0xFF, 0xD8, 0xFF, 0xE0]),
-    Buffer.from([0xFF, 0xD8, 0xFF, 0xE1]),
-    Buffer.from([0xFF, 0xD8, 0xFF, 0xE2]),
-    Buffer.from([0xFF, 0xD8, 0xFF, 0xE8])
-  ],
-  'image/png': Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]),
-  'image/webp': Buffer.from([0x52, 0x49, 0x46, 0x46])
-};
+export const storage = process.env.NODE_ENV === 'production'
+  ? memoryStorage()
+  : diskStorage({
+      destination: './uploads',
+      filename: (_req: Request, file: Express.Multer.File, cb: Function) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
+      },
+    });
 
-const validateFileContent = async (file: Express.Multer.File): Promise<boolean> => {
-  if (!file?.buffer || file.buffer.length < 8) {
-    logger.warn(`Invalid buffer for file: ${file.originalname}`);
-    return false;
+export const fileFilter = (_req: Request, file: Express.Multer.File, cb: Function) => {
+  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {
+    return cb(new Error('File type not allowed'), false);
   }
 
-  const signature = file.buffer.slice(0, 8);
-  let isValid = false;
-
-  for (const signatures of Object.values(FILE_SIGNATURES)) {
-    if (Array.isArray(signatures)) {
-      for (const sig of signatures) {
-        if (signature.slice(0, sig.length).equals(sig)) {
-          isValid = true;
-          break;
-        }
-      }
-    } else if (signature.slice(0, signatures.length).equals(signatures)) {
-      isValid = true;
-    }
-    if (isValid) break;
+  const ext = extname(file.originalname).toLowerCase();
+  if (!ALLOWED_EXTENSIONS.includes(ext)) {
+    return cb(new Error('File extension not allowed'), false);
   }
 
-  if (!isValid) {
-    logger.warn(`Content validation failed for file: ${file.originalname}`);
-  }
-  return isValid;
+  logger.debug(`Processing file: ${file.originalname} (${file.mimetype})`);
+  cb(null, true);
 };
 
 const s3Client = process.env.NODE_ENV === 'production'
@@ -60,21 +44,6 @@ const s3Client = process.env.NODE_ENV === 'production'
       } as AwsCredentialIdentity,
     })
   : null;
-
-export const storage = process.env.NODE_ENV === 'production'
-  ? memoryStorage()
-  : diskStorage({
-      destination: './uploads',
-      filename: (_req: Request, file: Express.Multer.File, cb: Function) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-      },
-    });
-
-export const fileFilter = async (req: Request, file: Express.Multer.File, cb: Function) => {
-  logger.debug(`Processing file: ${file.originalname} (${file.mimetype})`);
-  cb(null, true);
-};
 
 export const uploadToS3 = async (file: Express.Multer.File): Promise<string> => {
   if (!s3Client) {
@@ -88,8 +57,7 @@ export const uploadToS3 = async (file: Express.Multer.File): Promise<string> => 
       Bucket: process.env.AWS_BUCKET_NAME!,
       Key: key,
       Body: file.buffer,
-      ContentType: file.mimetype,
-      ACL: 'public-read',
+      ContentType: file.mimetype
     });
 
     await s3Client.send(command);
