@@ -43,7 +43,6 @@ export class ProjectsService {
     const newProject = this.projectsRepository.create({
       ...project,
       images: imageUrls,
-      tags: typeof project.tags === 'string' ? project.tags.split(',').map(tag => tag.trim()) : project.tags
     });
     
     return this.projectsRepository.save(newProject);
@@ -69,7 +68,6 @@ export class ProjectsService {
     await this.projectsRepository.update(id, {
       ...project,
       images: imageUrls,
-      tags: typeof project.tags === 'string' ? project.tags.split(',').map(tag => tag.trim()) : project.tags
     });
 
     return this.findOne(id);
