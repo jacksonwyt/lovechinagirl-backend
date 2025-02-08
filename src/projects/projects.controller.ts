@@ -7,6 +7,7 @@ import { Project } from './project.entity';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from '../common/middleware/upload.middleware';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+import { memoryStorage } from 'multer';
 
 @Controller('projects')
 export class ProjectsController {
@@ -24,20 +25,23 @@ export class ProjectsController {
 
   @Post()
 @UseGuards(JwtAuthGuard)
-@UseInterceptors(FilesInterceptor('images', 10, multerConfig))
-create(
+@UseInterceptors(FilesInterceptor('images', 10, {
+  storage: memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.match(/^image\/(jpeg|png|webp)$/)) {
+      cb(new Error('Only image files are allowed'), false);
+    }
+    cb(null, true);
+  },
+  limits: {
+    fileSize: 20 * 1024 * 1024 // 20MB
+  }
+}))
+async create(
   @Body() project: CreateProjectDto,
   @UploadedFiles() files: Express.Multer.File[],
 ): Promise<Project> {
-  console.log('=== Debug: ProjectsController create ===');
-  console.log('Number of files received:', files?.length);
-  files?.forEach((f, idx) => {
-    console.log(`File #${idx} =>`, {
-      mimetype: f.mimetype,
-      size: f.size,
-      bufferLength: f.buffer?.length ?? 'no buffer',
-    });
-  });
+  console.log('Files received:', files?.length);
   return this.projectsService.create(project, files);
 }
     @Put(':id')

@@ -6,15 +6,19 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { AppModule } from './app.module';
 import * as compression from 'compression';
-
-console.log('=== Debug: Starting Nest App ===');
-console.log('Current NODE_ENV:', process.env.NODE_ENV);
-
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { 
+    bodyParser: false 
+  });
+  
   const configService = app.get(ConfigService);
   const apiUrl = configService.get('API_URL');
+
+  app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+  app.use(compression());
 
   const expressApp = app.getHttpAdapter().getInstance();
 expressApp.set('trust proxy', 1);

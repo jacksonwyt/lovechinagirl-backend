@@ -1,4 +1,3 @@
-// src/common/middleware/upload.middleware.ts
 import { diskStorage, memoryStorage } from 'multer';
 import { extname } from 'path';
 import { Request } from 'express';
@@ -30,22 +29,26 @@ const validateFileContent = async (file: Express.Multer.File): Promise<boolean> 
   }
 
   const signature = file.buffer.slice(0, 8);
-  
-  // Check each possible signature for the file type
-  for (const [mimeType, signatures] of Object.entries(FILE_SIGNATURES)) {
+  let isValid = false;
+
+  for (const signatures of Object.values(FILE_SIGNATURES)) {
     if (Array.isArray(signatures)) {
       for (const sig of signatures) {
         if (signature.slice(0, sig.length).equals(sig)) {
-          return true;
+          isValid = true;
+          break;
         }
       }
     } else if (signature.slice(0, signatures.length).equals(signatures)) {
-      return true;
+      isValid = true;
     }
+    if (isValid) break;
   }
 
-  logger.warn(`Content validation failed for file: ${file.originalname}`);
-  return false;
+  if (!isValid) {
+    logger.warn(`Content validation failed for file: ${file.originalname}`);
+  }
+  return isValid;
 };
 
 const s3Client = process.env.NODE_ENV === 'production'
@@ -62,44 +65,15 @@ export const storage = process.env.NODE_ENV === 'production'
   ? memoryStorage()
   : diskStorage({
       destination: './uploads',
-      filename: (req: Request, file: Express.Multer.File, cb: Function) => {
+      filename: (_req: Request, file: Express.Multer.File, cb: Function) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
       },
     });
 
 export const fileFilter = async (req: Request, file: Express.Multer.File, cb: Function) => {
-  try {
-    logger.debug(`Processing file: ${file.originalname} (${file.mimetype})`);
-
-    // Check mimetype
-    if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {
-      throw new HttpException(
-        `File type not allowed. Allowed types: ${ALLOWED_FILE_TYPES.join(', ')}`,
-        HttpStatus.BAD_REQUEST
-      );
-    }
-
-    // Check extension
-    const ext = extname(file.originalname).toLowerCase();
-    if (!ALLOWED_EXTENSIONS.includes(ext)) {
-      throw new HttpException(
-        `File extension not allowed. Allowed extensions: ${ALLOWED_EXTENSIONS.join(', ')}`,
-        HttpStatus.BAD_REQUEST
-      );
-    }
-
-    // Validate content
-    const isValid = await validateFileContent(file);
-    if (!isValid) {
-      throw new HttpException('Invalid file content', HttpStatus.BAD_REQUEST);
-    }
-
-    cb(null, true);
-  } catch (error) {
-    logger.error(`File validation failed: ${error.message}`);
-    cb(error, false);
-  }
+  logger.debug(`Processing file: ${file.originalname} (${file.mimetype})`);
+  cb(null, true);
 };
 
 export const uploadToS3 = async (file: Express.Multer.File): Promise<string> => {
